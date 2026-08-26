@@ -1,0 +1,42 @@
+<div class="app-layout">
+  <!-- Top Navigation Header -->
+  <header class="app-navbar">
+    <div class="navbar-container">
+      <a routerLink="/dashboard" class="brand-logo">
+        <div class="logo-symbol">⚡</div>
+        <div class="logo-text">
+          <span class="brand-title">EquipSphere</span>
+          <span class="brand-tagline">Smart Equipment System</span>
+        </div>
+      </a>
+
+      <nav class="nav-links">
+        <a routerLink="/dashboard" routerLinkActive="active" class="nav-item">
+          <span class="nav-icon">📊</span>
+          <span>Dashboard</span>
+        </a>
+        <a routerLink="/equipment" routerLinkActive="active" class="nav-item">
+          <span class="nav-icon">🖥️</span>
+          <span>Equipment</span>
+        </a>
+        <a routerLink="/users" routerLinkActive="active" class="nav-item">
+          <span class="nav-icon">👥</span>
+          <span>Users</span>
+        </a>
+      </nav>
+
+      <div class="user-pill">
+        <div class="avatar-circle">A</div>
+        <div class="user-meta">
+          <span class="user-name">Admin</span>
+          <span class="online-indicator"></span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Routed Content -->
+  <main class="app-main-content">
+    <router-outlet></router-outlet>
+  </main>
+</div>

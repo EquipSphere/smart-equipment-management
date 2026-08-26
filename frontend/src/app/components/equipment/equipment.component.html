@@ -1,0 +1,226 @@
+<div class="equipment-page animate-fade-in">
+  <!-- Top Action Header -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Equipment Inventory</h1>
+      <p class="page-subtitle">Track, filter, update, and manage organizational devices and apparatus</p>
+    </div>
+    <button class="btn-primary" (click)="openAddModal()">
+      <span class="icon">➕</span> Add New Equipment
+    </button>
+  </div>
+
+  <!-- Alert Banner -->
+  <div *ngIf="alertMessage" class="alert-banner" [ngClass]="alertType">
+    <span>{{ alertType === 'success' ? '✅' : '⚠️' }}</span> {{ alertMessage }}
+  </div>
+
+  <!-- Search & Filter Bar -->
+  <div class="filter-card">
+    <div class="search-box">
+      <span class="search-icon">🔍</span>
+      <input
+        type="text"
+        [(ngModel)]="searchKeyword"
+        (keyup.enter)="onSearch()"
+        placeholder="Search by name, serial number, location..."
+      />
+      <button *ngIf="searchKeyword" class="btn-clear" (click)="searchKeyword = ''; loadEquipment()">✕</button>
+    </div>
+
+    <div class="filter-controls">
+      <!-- Category Filter -->
+      <div class="filter-group">
+        <label>Category:</label>
+        <select [(ngModel)]="selectedCategory" (change)="onFilterChange()">
+          <option value="ALL">All Categories</option>
+          <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
+        </select>
+      </div>
+
+      <!-- Status Filter -->
+      <div class="filter-group">
+        <label>Status:</label>
+        <select [(ngModel)]="selectedStatus" (change)="onFilterChange()">
+          <option value="ALL">All Statuses</option>
+          <option value="AVAILABLE">Available</option>
+          <option value="BOOKED">Booked</option>
+          <option value="MAINTENANCE">Maintenance</option>
+        </select>
+      </div>
+
+      <!-- View Toggle -->
+      <div class="view-toggle">
+        <button [class.active]="viewMode === 'grid'" (click)="viewMode = 'grid'" title="Grid View">🔲</button>
+        <button [class.active]="viewMode === 'table'" (click)="viewMode = 'table'" title="Table View">📋</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Fetching equipment catalog...</p>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!loading && equipmentList.length === 0" class="empty-state">
+    <div class="empty-icon">📦</div>
+    <h3>No Equipment Found</h3>
+    <p>No equipment matching your current filter criteria.</p>
+    <button class="btn-secondary" (click)="selectedCategory = 'ALL'; selectedStatus = 'ALL'; searchKeyword = ''; loadEquipment()">
+      Reset All Filters
+    </button>
+  </div>
+
+  <!-- GRID VIEW -->
+  <div *ngIf="!loading && viewMode === 'grid' && equipmentList.length > 0" class="equipment-grid">
+    <div class="equipment-card" *ngFor="let item of equipmentList">
+      <div class="card-image-wrap">
+        <img [src]="item.imageUrl || 'https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=500'" [alt]="item.name" loading="lazy" />
+        <span class="status-pill" [ngClass]="item.status.toLowerCase()">
+          {{ item.status }}
+        </span>
+      </div>
+
+      <div class="card-body">
+        <span class="category-tag">{{ item.category }}</span>
+        <h3 class="item-title" [title]="item.name">{{ item.name }}</h3>
+        
+        <div class="item-meta">
+          <div class="meta-row">
+            <span class="meta-icon">🏷️</span>
+            <span class="meta-text"><code>{{ item.serialNumber }}</code></span>
+          </div>
+          <div class="meta-row">
+            <span class="meta-icon">📍</span>
+            <span class="meta-text">{{ item.location }}</span>
+          </div>
+        </div>
+
+        <p class="item-description" *ngIf="item.description">{{ item.description }}</p>
+
+        <!-- Actions Footer -->
+        <div class="card-actions">
+          <div class="status-dropdown">
+            <button class="btn-action-icon" (click)="openEditModal(item)" title="Edit Item">✏️</button>
+            <button class="btn-action-icon delete" (click)="deleteEquipment(item)" title="Delete Item">🗑️</button>
+          </div>
+
+          <div class="status-quick-switch">
+            <button 
+              *ngIf="item.status !== 'AVAILABLE'" 
+              class="btn-status-toggle available" 
+              (click)="toggleStatus(item, 'AVAILABLE')">
+              Mark Available
+            </button>
+            <button 
+              *ngIf="item.status === 'AVAILABLE'" 
+              class="btn-status-toggle maintenance" 
+              (click)="toggleStatus(item, 'MAINTENANCE')">
+              Send to Maint.
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TABLE VIEW -->
+  <div *ngIf="!loading && viewMode === 'table' && equipmentList.length > 0" class="table-container">
+    <table class="custom-table">
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th>Category</th>
+          <th>Serial Number</th>
+          <th>Location</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of equipmentList">
+          <td class="table-item-cell">
+            <img [src]="item.imageUrl || 'https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=100'" class="table-thumb" [alt]="item.name" />
+            <div>
+              <strong>{{ item.name }}</strong>
+            </div>
+          </td>
+          <td><span class="category-tag">{{ item.category }}</span></td>
+          <td><code>{{ item.serialNumber }}</code></td>
+          <td>{{ item.location }}</td>
+          <td>
+            <span class="status-pill" [ngClass]="item.status.toLowerCase()">{{ item.status }}</span>
+          </td>
+          <td>
+            <div class="table-actions">
+              <button class="btn-action-icon" (click)="openEditModal(item)" title="Edit">✏️</button>
+              <button class="btn-action-icon delete" (click)="deleteEquipment(item)" title="Delete">🗑️</button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ADD / EDIT MODAL -->
+  <div class="modal-backdrop" *ngIf="isModalOpen" (click)="closeModal()">
+    <div class="modal-dialog" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>{{ isEditMode ? 'Edit Equipment' : 'Add New Equipment' }}</h2>
+        <button class="btn-close" (click)="closeModal()">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="form-grid">
+          <div class="form-group full">
+            <label>Equipment Name *</label>
+            <input type="text" [(ngModel)]="formModel.name" placeholder="e.g. Sony Alpha A7 IV Camera" required />
+          </div>
+
+          <div class="form-group">
+            <label>Category *</label>
+            <input type="text" [(ngModel)]="formModel.category" placeholder="e.g. Projector, Laptop, Camera..." required />
+          </div>
+
+          <div class="form-group">
+            <label>Serial Number *</label>
+            <input type="text" [(ngModel)]="formModel.serialNumber" placeholder="e.g. CAM-SNY-001" required />
+          </div>
+
+          <div class="form-group">
+            <label>Location / Room *</label>
+            <input type="text" [(ngModel)]="formModel.location" placeholder="e.g. Media Lab B, Lab 101" required />
+          </div>
+
+          <div class="form-group">
+            <label>Status</label>
+            <select [(ngModel)]="formModel.status">
+              <option value="AVAILABLE">Available</option>
+              <option value="BOOKED">Booked</option>
+              <option value="MAINTENANCE">Maintenance</option>
+            </select>
+          </div>
+
+          <div class="form-group full">
+            <label>Image URL (Optional)</label>
+            <input type="text" [(ngModel)]="formModel.imageUrl" placeholder="https://images.unsplash.com/..." />
+          </div>
+
+          <div class="form-group full">
+            <label>Description (Optional)</label>
+            <textarea [(ngModel)]="formModel.description" rows="3" placeholder="Technical specifications, notes, accessories included..."></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-secondary" (click)="closeModal()">Cancel</button>
+        <button class="btn-primary" (click)="saveEquipment()">
+          {{ isEditMode ? 'Save Changes' : 'Create Equipment' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,5 +1,6 @@
 package com.equipsphere.service.impl;
 
+import com.equipsphere.dto.user.UserCreateDTO;
 import com.equipsphere.dto.user.UserResponseDTO;
 import com.equipsphere.dto.user.UserUpdateDTO;
 import com.equipsphere.entity.User;
@@ -37,6 +38,25 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
         return mapToDTO(user);
+    }
+
+    @Override
+    public UserResponseDTO createUser(UserCreateDTO createDTO) {
+        if (userRepository.existsByEmail(createDTO.getEmail())) {
+            throw new IllegalArgumentException("User with email '" + createDTO.getEmail() + "' already exists.");
+        }
+
+        User user = User.builder()
+                .name(createDTO.getName())
+                .email(createDTO.getEmail())
+                .password(createDTO.getPassword())
+                .role(createDTO.getRole() != null ? createDTO.getRole() : "USER")
+                .phone(createDTO.getPhone())
+                .department(createDTO.getDepartment())
+                .build();
+
+        User saved = userRepository.save(user);
+        return mapToDTO(saved);
     }
 
     @Override

@@ -22,6 +22,10 @@ export class UserService {
     return this.http.get<User>(`${this.baseUrl}/${id}`);
   }
 
+  create(user: import('../models/user.model').UserCreate): Observable<User> {
+    return this.http.post<User>(this.baseUrl, user);
+  }
+
   update(id: number, user: UserUpdate): Observable<User> {
     return this.http.put<User>(`${this.baseUrl}/${id}`, user);
   }

@@ -1,5 +1,6 @@
 package com.equipsphere.controller;
 
+import com.equipsphere.dto.user.UserCreateDTO;
 import com.equipsphere.dto.user.UserResponseDTO;
 import com.equipsphere.dto.user.UserUpdateDTO;
 import com.equipsphere.service.UserService;
@@ -38,6 +39,12 @@ public class UserController {
     @GetMapping("/by-email")
     public ResponseEntity<UserResponseDTO> getUserByEmail(@RequestParam String email) {
         return ResponseEntity.ok(userService.getUserByEmail(email));
+    }
+
+    @PostMapping
+    public ResponseEntity<UserResponseDTO> createUser(@Valid @RequestBody UserCreateDTO createDTO) {
+        UserResponseDTO created = userService.createUser(createDTO);
+        return new ResponseEntity<>(created, org.springframework.http.HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")

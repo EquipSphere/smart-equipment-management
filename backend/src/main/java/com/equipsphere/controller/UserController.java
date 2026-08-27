@@ -1,5 +1,6 @@
 package com.equipsphere.controller;
 
+import com.equipsphere.dto.user.UserCreateDTO;
 import com.equipsphere.dto.user.UserResponseDTO;
 import com.equipsphere.dto.user.UserUpdateDTO;
 import com.equipsphere.service.UserService;
@@ -41,7 +42,7 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<UserResponseDTO> createUser(@Valid @RequestBody com.equipsphere.dto.user.UserCreateDTO createDTO) {
+    public ResponseEntity<UserResponseDTO> createUser(@Valid @RequestBody UserCreateDTO createDTO) {
         UserResponseDTO created = userService.createUser(createDTO);
         return new ResponseEntity<>(created, org.springframework.http.HttpStatus.CREATED);
     }

@@ -1,5 +1,6 @@
 package com.equipsphere.service.impl;
 
+import com.equipsphere.dto.user.UserCreateDTO;
 import com.equipsphere.dto.user.UserResponseDTO;
 import com.equipsphere.dto.user.UserUpdateDTO;
 import com.equipsphere.entity.User;
@@ -40,7 +41,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserResponseDTO createUser(com.equipsphere.dto.user.UserCreateDTO createDTO) {
+    public UserResponseDTO createUser(UserCreateDTO createDTO) {
         if (userRepository.existsByEmail(createDTO.getEmail())) {
             throw new IllegalArgumentException("User with email '" + createDTO.getEmail() + "' already exists.");
         }

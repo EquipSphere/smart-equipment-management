@@ -40,6 +40,12 @@ public class UserController {
         return ResponseEntity.ok(userService.getUserByEmail(email));
     }
 
+    @PostMapping
+    public ResponseEntity<UserResponseDTO> createUser(@Valid @RequestBody com.equipsphere.dto.user.UserCreateDTO createDTO) {
+        UserResponseDTO created = userService.createUser(createDTO);
+        return new ResponseEntity<>(created, org.springframework.http.HttpStatus.CREATED);
+    }
+
     @PutMapping("/{id}")
     public ResponseEntity<UserResponseDTO> updateUser(
             @PathVariable Long id,

@@ -9,6 +9,7 @@ public interface UserService {
     List<UserResponseDTO> getAllUsers();
     UserResponseDTO getUserById(Long id);
     UserResponseDTO getUserByEmail(String email);
+    UserResponseDTO createUser(com.equipsphere.dto.user.UserCreateDTO createDTO);
     UserResponseDTO updateUser(Long id, UserUpdateDTO updateDTO);
     void deleteUser(Long id);
     List<UserResponseDTO> searchUsers(String keyword);

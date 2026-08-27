@@ -40,6 +40,25 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public UserResponseDTO createUser(com.equipsphere.dto.user.UserCreateDTO createDTO) {
+        if (userRepository.existsByEmail(createDTO.getEmail())) {
+            throw new IllegalArgumentException("User with email '" + createDTO.getEmail() + "' already exists.");
+        }
+
+        User user = User.builder()
+                .name(createDTO.getName())
+                .email(createDTO.getEmail())
+                .password(createDTO.getPassword())
+                .role(createDTO.getRole() != null ? createDTO.getRole() : "USER")
+                .phone(createDTO.getPhone())
+                .department(createDTO.getDepartment())
+                .build();
+
+        User saved = userRepository.save(user);
+        return mapToDTO(saved);
+    }
+
+    @Override
     public UserResponseDTO updateUser(Long id, UserUpdateDTO updateDTO) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));

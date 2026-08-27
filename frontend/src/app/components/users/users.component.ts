@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { UserService } from '../../services/user.service';
-import { User, UserUpdate } from '../../models/user.model';
+import { User, UserCreate, UserUpdate } from '../../models/user.model';
 
 @Component({
   selector: 'app-users',
@@ -17,11 +17,22 @@ export class UsersComponent implements OnInit {
   searchKeyword: string = '';
   loading: boolean = true;
 
-  // Edit Modal State
+  // Modal State
   isModalOpen: boolean = false;
+  isEditMode: boolean = false;
   currentUserId?: number;
-  formModel: UserUpdate = {
+
+  formModel: {
+    name: string;
+    email: string;
+    password?: string;
+    phone: string;
+    department: string;
+    role: string;
+  } = {
     name: '',
+    email: '',
+    password: '',
     phone: '',
     department: '',
     role: 'USER'
@@ -50,11 +61,28 @@ export class UsersComponent implements OnInit {
     });
   }
 
+  openAddModal(): void {
+    this.isEditMode = false;
+    this.currentUserId = undefined;
+    this.formModel = {
+      name: '',
+      email: '',
+      password: 'password123',
+      phone: '',
+      department: '',
+      role: 'USER'
+    };
+    this.isModalOpen = true;
+  }
+
   openEditModal(user: User): void {
     if (!user.id) return;
+    this.isEditMode = true;
     this.currentUserId = user.id;
     this.formModel = {
       name: user.name,
+      email: user.email,
+      password: '',
       phone: user.phone || '',
       department: user.department || '',
       role: user.role
@@ -67,15 +95,46 @@ export class UsersComponent implements OnInit {
   }
 
   saveUser(): void {
-    if (!this.currentUserId) return;
-    this.userService.update(this.currentUserId, this.formModel).subscribe({
-      next: () => {
-        this.showAlert('User profile updated successfully!', 'success');
-        this.closeModal();
-        this.loadUsers();
-      },
-      error: () => this.showAlert('Failed to update user.', 'error')
-    });
+    if (!this.formModel.name || (!this.isEditMode && (!this.formModel.email || !this.formModel.password))) {
+      this.showAlert('Please fill in all required fields.', 'error');
+      return;
+    }
+
+    if (this.isEditMode && this.currentUserId) {
+      const updateData: UserUpdate = {
+        name: this.formModel.name,
+        phone: this.formModel.phone,
+        department: this.formModel.department,
+        role: this.formModel.role
+      };
+
+      this.userService.update(this.currentUserId, updateData).subscribe({
+        next: () => {
+          this.showAlert('User updated successfully!', 'success');
+          this.closeModal();
+          this.loadUsers();
+        },
+        error: (err) => this.showAlert(err.error?.message || 'Failed to update user.', 'error')
+      });
+    } else {
+      const createData: UserCreate = {
+        name: this.formModel.name,
+        email: this.formModel.email,
+        password: this.formModel.password,
+        phone: this.formModel.phone,
+        department: this.formModel.department,
+        role: this.formModel.role
+      };
+
+      this.userService.create(createData).subscribe({
+        next: () => {
+          this.showAlert('New user created successfully!', 'success');
+          this.closeModal();
+          this.loadUsers();
+        },
+        error: (err) => this.showAlert(err.error?.message || 'Failed to create user.', 'error')
+      });
+    }
   }
 
   deleteUser(user: User): void {

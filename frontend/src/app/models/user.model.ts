@@ -8,6 +8,15 @@ export interface User {
   createdAt?: string;
 }
 
+export interface UserCreate {
+  name: string;
+  email: string;
+  password?: string;
+  role?: string;
+  phone?: string;
+  department?: string;
+}
+
 export interface UserUpdate {
   name: string;
   phone?: string;

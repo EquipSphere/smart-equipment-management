@@ -1,0 +1,202 @@
+<div class="booking-container">
+  <!-- Header Banner -->
+  <div class="booking-header">
+    <div class="header-text">
+      <h2>Equipment Reservations</h2>
+      <p class="subtitle">Reserve equipment with automated conflict prevention & real-time scheduling</p>
+    </div>
+    <button class="btn-primary" (click)="openBookingModal()">
+      <span class="btn-icon">✨</span>
+      <span>New Reservation</span>
+    </button>
+  </div>
+
+  <!-- Alerts -->
+  <div *ngIf="successMessage" class="alert alert-success">
+    <span>✅ {{ successMessage }}</span>
+  </div>
+  <div *ngIf="errorMessage" class="alert alert-danger">
+    <span>⚠️ {{ errorMessage }}</span>
+  </div>
+
+  <!-- Role Tabs & Filters -->
+  <div class="controls-bar">
+    <div class="nav-tabs" *ngIf="authService.isAdmin()">
+      <button class="tab-btn" [class.active]="currentTab === 'all'" (click)="switchTab('all')">
+        🏢 All Reservations (Admin)
+      </button>
+      <button class="tab-btn" [class.active]="currentTab === 'my'" (click)="switchTab('my')">
+        👤 My Reservations
+      </button>
+    </div>
+
+    <div class="filter-pills">
+      <button class="pill-btn" [class.active]="activeFilter === 'ALL'" (click)="activeFilter = 'ALL'">All</button>
+      <button class="pill-btn" [class.active]="activeFilter === 'PENDING'" (click)="activeFilter = 'PENDING'">⏳ Pending</button>
+      <button class="pill-btn" [class.active]="activeFilter === 'APPROVED'" (click)="activeFilter = 'APPROVED'">✅ Approved</button>
+      <button class="pill-btn" [class.active]="activeFilter === 'REJECTED'" (click)="activeFilter = 'REJECTED'">❌ Rejected</button>
+      <button class="pill-btn" [class.active]="activeFilter === 'CANCELLED'" (click)="activeFilter = 'CANCELLED'">⚪ Cancelled</button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Loading reservations...</p>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!loading && filteredBookings.length === 0" class="empty-state">
+    <div class="empty-icon">📅</div>
+    <h3>No reservations found</h3>
+    <p>There are no bookings matching the selected filter criteria.</p>
+    <button class="btn-secondary" (click)="openBookingModal()">Make a Reservation</button>
+  </div>
+
+  <!-- Bookings Grid / Cards -->
+  <div *ngIf="!loading && filteredBookings.length > 0" class="bookings-grid">
+    <div *ngFor="let b of filteredBookings" class="booking-card" [ngClass]="'status-' + b.status.toLowerCase()">
+      <div class="card-header">
+        <div class="equip-info">
+          <span class="category-badge">{{ b.equipment.category }}</span>
+          <h3 class="equip-name">{{ b.equipment.name }}</h3>
+          <span class="serial-tag">SN: {{ b.equipment.serialNumber }}</span>
+        </div>
+        <span class="status-badge" [ngClass]="'badge-' + b.status.toLowerCase()">
+          {{ b.status }}
+        </span>
+      </div>
+
+      <div class="card-body">
+        <div class="meta-row">
+          <span class="meta-label">👤 Reserved By:</span>
+          <span class="meta-val">{{ b.user.name }} ({{ b.user.department }})</span>
+        </div>
+
+        <div class="meta-row time-row">
+          <div class="time-block">
+            <span class="meta-label">🟢 From:</span>
+            <span class="time-text">{{ b.startTime }}</span>
+          </div>
+          <div class="time-arrow">➔</div>
+          <div class="time-block">
+            <span class="meta-label">🔴 To:</span>
+            <span class="time-text">{{ b.endTime }}</span>
+          </div>
+        </div>
+
+        <div class="meta-row" *ngIf="b.equipment.location">
+          <span class="meta-label">📍 Location:</span>
+          <span class="meta-val">{{ b.equipment.location }}</span>
+        </div>
+
+        <div class="purpose-box">
+          <span class="purpose-label">Purpose:</span>
+          <p class="purpose-text">{{ b.purpose }}</p>
+        </div>
+
+        <div class="admin-remark-box" *ngIf="b.adminRemark">
+          <span class="remark-label">Admin Remark:</span>
+          <p class="remark-text">{{ b.adminRemark }}</p>
+        </div>
+      </div>
+
+      <div class="card-actions">
+        <!-- Admin Actions -->
+        <ng-container *ngIf="authService.isAdmin() && b.status === 'PENDING'">
+          <button class="btn-approve" (click)="approveBooking(b)">✅ Approve</button>
+          <button class="btn-reject" (click)="openRejectDialog(b)">❌ Reject</button>
+        </ng-container>
+
+        <!-- User Cancel Action -->
+        <button *ngIf="(b.status === 'PENDING' || b.status === 'APPROVED') && (b.user.email === authService.currentUser()?.email || authService.isAdmin())"
+                class="btn-cancel" (click)="cancelBooking(b)">
+          Cancel Reservation
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reservation Modal -->
+  <div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>✨ Reserve Equipment</h3>
+        <button class="btn-close" (click)="closeModal()">✕</button>
+      </div>
+
+      <form (ngSubmit)="submitBooking()" class="modal-form">
+        <!-- Equipment Selector -->
+        <div class="form-group">
+          <label>Select Equipment *</label>
+          <select class="form-control" [(ngModel)]="newBooking.equipmentId" name="equipmentId" (change)="onTimeOrEquipmentChange()" required>
+            <option [value]="0" disabled>-- Choose an available equipment --</option>
+            <option *ngFor="let eq of equipmentList" [value]="eq.id">
+              {{ eq.name }} ({{ eq.category }}) - {{ eq.location }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Start & End Date Time -->
+        <div class="form-row">
+          <div class="form-group">
+            <label>Start Date & Time *</label>
+            <input type="datetime-local" class="form-control" [(ngModel)]="newBooking.startTime" name="startTime" (change)="onTimeOrEquipmentChange()" required>
+          </div>
+          <div class="form-group">
+            <label>End Date & Time *</label>
+            <input type="datetime-local" class="form-control" [(ngModel)]="newBooking.endTime" name="endTime" (change)="onTimeOrEquipmentChange()" required>
+          </div>
+        </div>
+
+        <!-- Real-Time Conflict Detection Indicator -->
+        <div class="availability-indicator" *ngIf="newBooking.equipmentId && newBooking.startTime && newBooking.endTime">
+          <div *ngIf="checkingAvailability" class="check-loading">
+            <span class="spinner-small"></span> Checking slot availability in real time...
+          </div>
+          <div *ngIf="!checkingAvailability && availabilityResult" [class]="availabilityResult.isAvailable ? 'slot-free' : 'slot-busy'">
+            <span class="slot-icon">{{ availabilityResult.isAvailable ? '✅' : '⚠️' }}</span>
+            <div class="slot-text">
+              <strong>{{ availabilityResult.isAvailable ? 'Time Slot Available!' : 'Schedule Conflict Detected!' }}</strong>
+              <p>{{ availabilityResult.message }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Purpose -->
+        <div class="form-group">
+          <label>Purpose of Reservation *</label>
+          <textarea class="form-control" rows="3" [(ngModel)]="newBooking.purpose" name="purpose" placeholder="Describe the academic project, lab session, or faculty use..." required></textarea>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary" (click)="closeModal()">Cancel</button>
+          <button type="submit" class="btn-primary" [disabled]="submitting || (availabilityResult && !availabilityResult.isAvailable)">
+            <span *ngIf="submitting" class="spinner-small"></span>
+            <span>{{ submitting ? 'Reserving...' : 'Submit Reservation' }}</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Reject Reason Modal -->
+  <div class="modal-overlay" *ngIf="showRejectModal" (click)="showRejectModal = false">
+    <div class="modal-card modal-sm" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Reject Reservation Request</h3>
+        <button class="btn-close" (click)="showRejectModal = false">✕</button>
+      </div>
+      <div class="modal-form">
+        <p class="dialog-desc">Please provide a reason or note for declining this booking request:</p>
+        <div class="form-group">
+          <textarea class="form-control" rows="3" [(ngModel)]="rejectReason" placeholder="e.g. Reserved for scheduled lab maintenance or academic priority..."></textarea>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary" (click)="showRejectModal = false">Cancel</button>
+          <button type="button" class="btn-reject" (click)="confirmReject()">Confirm Rejection</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { EquipmentService } from '../../services/equipment.service';
+import { AuthService } from '../../services/auth.service';
 import { Equipment, EquipmentRequest } from '../../models/equipment.model';
 
 @Component({
@@ -39,7 +40,10 @@ export class EquipmentComponent implements OnInit {
   alertMessage: string = '';
   alertType: 'success' | 'error' = 'success';
 
-  constructor(private readonly equipmentService: EquipmentService) {}
+  constructor(
+    private readonly equipmentService: EquipmentService,
+    public readonly authService: AuthService
+  ) {}
 
   ngOnInit(): void {
     this.loadCategories();

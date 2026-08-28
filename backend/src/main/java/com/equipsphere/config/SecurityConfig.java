@@ -80,17 +80,20 @@ public class SecurityConfig {
                         // 1. MUST allow all pre-flight CORS OPTIONS requests
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         // 2. Public Auth APIs
-                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/auth", "/api/auth/**").permitAll()
                         // 3. Public read-only equipment catalog & dashboard stats
-                        .requestMatchers(HttpMethod.GET, "/api/equipment/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/dashboard/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/equipment", "/api/equipment/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/dashboard", "/api/dashboard/**").permitAll()
                         // 4. Admin restricted endpoints
-                        .requestMatchers(HttpMethod.POST, "/api/equipment/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/api/equipment/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PATCH, "/api/equipment/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/equipment/**").hasRole("ADMIN")
-                        .requestMatchers("/api/users/**").hasRole("ADMIN")
-                        // 5. Any other request must be authenticated
+                        .requestMatchers(HttpMethod.POST, "/api/equipment", "/api/equipment/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/equipment", "/api/equipment/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PATCH, "/api/equipment", "/api/equipment/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/equipment", "/api/equipment/**").hasRole("ADMIN")
+                        .requestMatchers("/api/users", "/api/users/**").hasRole("ADMIN")
+                        // 5. Authenticated Bookings & Maintenance
+                        .requestMatchers("/api/bookings", "/api/bookings/**").authenticated()
+                        .requestMatchers("/api/maintenance", "/api/maintenance/**").authenticated()
+                        // 6. Any other request must be authenticated
                         .anyRequest().authenticated()
                 );
 

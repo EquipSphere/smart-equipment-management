@@ -30,10 +30,10 @@
           <span class="stat-label">Total Equipment</span>
           <div class="stat-icon-wrapper total">📦</div>
         </div>
-        <div class="stat-value">{{ stats.totalEquipment }}</div>
+        <div class="stat-value">{{ stats.totalEquipment || 0 }}</div>
         <div class="stat-footer">
           <span class="badge badge-info">100% Tracked</span>
-          <span class="stat-hint">In active database</span>
+          <span class="stat-hint">In Neon Cloud DB</span>
         </div>
       </div>
 
@@ -43,7 +43,7 @@
           <span class="stat-label">Available Now</span>
           <div class="stat-icon-wrapper available">✅</div>
         </div>
-        <div class="stat-value">{{ stats.availableEquipment }}</div>
+        <div class="stat-value">{{ stats.availableEquipment || 0 }}</div>
         <div class="stat-footer">
           <span class="badge badge-success">Ready for Booking</span>
           <span class="stat-hint">Lab & Media</span>
@@ -56,10 +56,10 @@
           <span class="stat-label">Currently Booked</span>
           <div class="stat-icon-wrapper booked">📅</div>
         </div>
-        <div class="stat-value">{{ stats.bookedEquipment }}</div>
+        <div class="stat-value">{{ stats.bookedEquipment || 0 }}</div>
         <div class="stat-footer">
           <span class="badge badge-warning">Active Reserves</span>
-          <span class="stat-hint">{{ stats.pendingBookingsCount }} Pending Approvals</span>
+          <span class="stat-hint">{{ stats.pendingBookingsCount || 0 }} Pending Approvals</span>
         </div>
       </div>
 
@@ -67,12 +67,12 @@
       <div class="stat-card card-maintenance">
         <div class="stat-header">
           <span class="stat-label">In Maintenance</span>
-          <div class="stat-icon-wrapper maintenance">🔧</div>
+          <div class="stat-icon-wrapper maintenance">🛠️</div>
         </div>
-        <div class="stat-value">{{ stats.underMaintenance }}</div>
+        <div class="stat-value">{{ stats.underMaintenance || 0 }}</div>
         <div class="stat-footer">
           <span class="badge badge-danger">Under Repair</span>
-          <span class="stat-hint">{{ stats.activeMaintenanceCount }} Active Reports</span>
+          <span class="stat-hint">{{ stats.activeMaintenanceCount || 0 }} Active Reports</span>
         </div>
       </div>
     </div>
@@ -85,7 +85,7 @@
           <h2>🔥 Top Booked Equipment</h2>
           <a routerLink="/equipment" class="panel-link">View All Items →</a>
         </div>
-        <div class="items-list" *ngIf="stats.mostBookedEquipment.length > 0; else noBookings">
+        <div class="items-list" *ngIf="stats.mostBookedEquipment && stats.mostBookedEquipment.length > 0; else noBookings">
           <div class="ranked-item" *ngFor="let item of stats.mostBookedEquipment; let i = index">
             <div class="rank-badge">#{{ i + 1 }}</div>
             <div class="item-info">
@@ -108,26 +108,29 @@
           <h2>🏷️ Inventory by Category</h2>
           <span class="count-pill">{{ getCategoryEntries().length }} Categories</span>
         </div>
-        <div class="category-grid">
+        <div class="category-grid" *ngIf="getCategoryEntries().length > 0; else noCategories">
           <div class="category-chip" *ngFor="let cat of getCategoryEntries()">
             <div class="cat-name">{{ cat.category }}</div>
             <div class="cat-count">{{ cat.count }} items</div>
           </div>
         </div>
+        <ng-template #noCategories>
+          <p class="empty-state">No category breakdown available yet.</p>
+        </ng-template>
 
         <!-- Quick System Stats Footer -->
         <div class="system-stats-strip">
           <div class="stat-pill">
             <span class="icon">👥</span>
-            <span><strong>{{ stats.totalUsersCount }}</strong> Users Registered</span>
+            <span><strong>{{ stats.totalUsersCount || 0 }}</strong> Users Registered</span>
           </div>
           <div class="stat-pill">
             <span class="icon">⏳</span>
-            <span><strong>{{ stats.pendingBookingsCount }}</strong> Pending Reviews</span>
+            <span><strong>{{ stats.pendingBookingsCount || 0 }}</strong> Pending Reviews</span>
           </div>
           <div class="stat-pill">
             <span class="icon">🛠️</span>
-            <span><strong>{{ stats.activeMaintenanceCount }}</strong> Fault Tickets</span>
+            <span><strong>{{ stats.activeMaintenanceCount || 0 }}</strong> Fault Tickets</span>
           </div>
         </div>
       </div>

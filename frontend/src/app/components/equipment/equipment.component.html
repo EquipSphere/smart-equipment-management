@@ -5,8 +5,8 @@
       <h1 class="page-title">Equipment Inventory</h1>
       <p class="page-subtitle">Track, filter, update, and manage organizational devices and apparatus</p>
     </div>
-    <button class="btn-primary" (click)="openAddModal()">
-      <span class="icon">➕</span> Add New Equipment
+    <button class="btn-primary" (click)="openAddModal()" *ngIf="authService.isAdmin()">
+      <span class="icon">＋</span> Add New Equipment
     </button>
   </div>
 
@@ -15,8 +15,8 @@
     <span>{{ alertType === 'success' ? '✅' : '⚠️' }}</span> {{ alertMessage }}
   </div>
 
-  <!-- Search & Filter Bar -->
-  <div class="filter-card">
+  <!-- Search & Filter Controls -->
+  <div class="controls-bar">
     <div class="search-box">
       <span class="search-icon">🔍</span>
       <input
@@ -52,7 +52,7 @@
       <!-- View Toggle -->
       <div class="view-toggle">
         <button [class.active]="viewMode === 'grid'" (click)="viewMode = 'grid'" title="Grid View">🔲</button>
-        <button [class.active]="viewMode === 'table'" (click)="viewMode = 'table'" title="Table View">📋</button>
+        <button [class.active]="viewMode === 'table'" (click)="viewMode = 'table'" title="Table View">📑</button>
       </div>
     </div>
   </div>
@@ -101,7 +101,7 @@
         <p class="item-description" *ngIf="item.description">{{ item.description }}</p>
 
         <!-- Actions Footer -->
-        <div class="card-actions">
+        <div class="card-actions" *ngIf="authService.isAdmin()">
           <div class="status-dropdown">
             <button class="btn-action-icon" (click)="openEditModal(item)" title="Edit Item">✏️</button>
             <button class="btn-action-icon delete" (click)="deleteEquipment(item)" title="Delete Item">🗑️</button>
@@ -136,7 +136,7 @@
           <th>Serial Number</th>
           <th>Location</th>
           <th>Status</th>
-          <th>Actions</th>
+          <th *ngIf="authService.isAdmin()">Actions</th>
         </tr>
       </thead>
       <tbody>
@@ -153,7 +153,7 @@
           <td>
             <span class="status-pill" [ngClass]="item.status.toLowerCase()">{{ item.status }}</span>
           </td>
-          <td>
+          <td *ngIf="authService.isAdmin()">
             <div class="table-actions">
               <button class="btn-action-icon" (click)="openEditModal(item)" title="Edit">✏️</button>
               <button class="btn-action-icon delete" (click)="deleteEquipment(item)" title="Delete">🗑️</button>

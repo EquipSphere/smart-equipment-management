@@ -12,13 +12,14 @@ import java.util.List;
 @Repository
 public interface BookingRepository extends JpaRepository<Booking, Long> {
 
-    List<Booking> findByUserId(Long userId);
-    List<Booking> findByEquipmentId(Long equipmentId);
-    List<Booking> findByStatus(String status);
+    List<Booking> findByUserIdOrderByCreatedAtDesc(Long userId);
+    List<Booking> findByEquipmentIdOrderByStartTimeAsc(Long equipmentId);
+    List<Booking> findByStatusOrderByCreatedAtDesc(String status);
+    List<Booking> findAllByOrderByCreatedAtDesc();
 
     long countByStatus(String status);
 
-    // Check for overlapping bookings for conflict detection
+    // Conflict detection: overlapping active bookings
     @Query("SELECT b FROM Booking b WHERE b.equipment.id = :equipmentId " +
            "AND b.status IN ('APPROVED', 'PENDING') " +
            "AND (:startTime < b.endTime AND :endTime > b.startTime)")
@@ -26,6 +27,18 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             @Param("equipmentId") Long equipmentId,
             @Param("startTime") LocalDateTime startTime,
             @Param("endTime") LocalDateTime endTime
+    );
+
+    // Conflict detection excluding current booking (for updates)
+    @Query("SELECT b FROM Booking b WHERE b.equipment.id = :equipmentId " +
+           "AND b.status IN ('APPROVED', 'PENDING') " +
+           "AND b.id != :excludeBookingId " +
+           "AND (:startTime < b.endTime AND :endTime > b.startTime)")
+    List<Booking> findConflictingBookingsExcluding(
+            @Param("equipmentId") Long equipmentId,
+            @Param("startTime") LocalDateTime startTime,
+            @Param("endTime") LocalDateTime endTime,
+            @Param("excludeBookingId") Long excludeBookingId
     );
 
     // Top most booked equipment

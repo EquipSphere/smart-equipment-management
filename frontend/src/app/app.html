@@ -1,66 +1,65 @@
-<div class="app-layout">
-  <!-- Top Navigation Header -->
-  <header class="app-navbar">
-    <div class="navbar-container">
-      <a routerLink="/dashboard" class="brand-logo">
-        <div class="logo-symbol">⚡</div>
-        <div class="logo-text">
-          <span class="brand-title">EquipSphere</span>
-          <span class="brand-tagline">Smart Equipment System</span>
-        </div>
-      </a>
-
-      <!-- Navigation Links for Logged in users -->
-      <nav class="nav-links">
-        <a routerLink="/dashboard" routerLinkActive="active" class="nav-item" *ngIf="authService.isLoggedIn()">
-          <span class="nav-icon">📊</span>
-          <span>Dashboard</span>
-        </a>
-        <a routerLink="/equipment" routerLinkActive="active" class="nav-item">
-          <span class="nav-icon">💻</span>
-          <span>Equipment Catalog</span>
-        </a>
-        <a routerLink="/users" routerLinkActive="active" class="nav-item" *ngIf="authService.isLoggedIn() && authService.isAdmin()">
-          <span class="nav-icon">👥</span>
-          <span>User Management</span>
-        </a>
-      </nav>
-
-      <!-- Auth State / User Profile Pill -->
-      <div class="auth-nav-section">
-        <ng-container *ngIf="authService.isLoggedIn(); else guestNav">
-          <div class="user-pill">
-            <div class="avatar-circle" [class.admin-avatar]="authService.isAdmin()">
-              {{ authService.userName().charAt(0).toUpperCase() }}
-            </div>
-            <div class="user-meta">
-              <span class="user-name">{{ authService.userName() }}</span>
-              <span class="user-role-badge" [class.admin-badge]="authService.isAdmin()">
-                {{ authService.userRole() }}
-              </span>
-            </div>
-            <button (click)="logout()" class="btn-logout" title="Sign Out">
-              🚪 <span>Logout</span>
-            </button>
-          </div>
-        </ng-container>
-
-        <ng-template #guestNav>
-          <div class="guest-actions">
-            <a routerLink="/login" class="btn-login-nav">Sign In</a>
-            <a routerLink="/register" class="btn-register-nav">Register</a>
-          </div>
-        </ng-template>
+<header class="navbar">
+  <div class="nav-container">
+    <!-- Brand -->
+    <a routerLink="/dashboard" class="nav-brand">
+      <div class="brand-icon">⚡</div>
+      <div class="brand-info">
+        <span class="brand-name">EquipSphere</span>
+        <span class="brand-tag">Smart Equipment System</span>
       </div>
+    </a>
+
+    <!-- Navigation Links -->
+    <nav class="nav-menu" *ngIf="authService.isLoggedIn()">
+      <a routerLink="/dashboard" routerLinkActive="active" class="nav-link">
+        <span class="nav-icon">📊</span> Dashboard
+      </a>
+      <a routerLink="/equipment" routerLinkActive="active" class="nav-link">
+        <span class="nav-icon">💻</span> Equipment
+      </a>
+      <a routerLink="/bookings" routerLinkActive="active" class="nav-link">
+        <span class="nav-icon">📅</span> Bookings
+      </a>
+      <a routerLink="/users" routerLinkActive="active" class="nav-link" *ngIf="authService.isAdmin()">
+        <span class="nav-icon">👥</span> Users
+      </a>
+    </nav>
+
+    <!-- Auth Actions / Profile -->
+    <div class="nav-actions">
+      <!-- Authenticated View -->
+      <ng-container *ngIf="authService.isLoggedIn()">
+        <div class="user-pill">
+          <div class="user-avatar">
+            {{ (authService.userName() || 'U').charAt(0).toUpperCase() }}
+          </div>
+          <div class="user-details">
+            <span class="user-name">{{ authService.userName() }}</span>
+            <span class="role-badge" [class.admin]="authService.isAdmin()">
+              {{ authService.userRole() }}
+            </span>
+          </div>
+        </div>
+        <button class="btn-logout" (click)="authService.logout()" title="Sign Out">
+          <span>Logout</span>
+        </button>
+      </ng-container>
+
+      <!-- Guest View -->
+      <ng-container *ngIf="!authService.isLoggedIn()">
+        <a routerLink="/login" class="btn-signin">Sign In</a>
+        <a routerLink="/register" class="btn-register">Register</a>
+      </ng-container>
     </div>
-  </header>
+  </div>
+</header>
 
-  <!-- Main Routed Content -->
-  <main class="app-main-content">
-    <router-outlet></router-outlet>
-  </main>
+<main class="main-content">
+  <router-outlet></router-outlet>
+</main>
 
-  <footer class="app-footer">
+<footer class="footer">
+  <div class="footer-container">
     <p>© 2026 EquipSphere · Smart Equipment Booking & Maintenance System · Built with Angular, Spring Boot & PostgreSQL</p>
-  </footer>
-</div>
+  </div>
+</footer>

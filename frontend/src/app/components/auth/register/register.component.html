@@ -1,0 +1,124 @@
+<div class="auth-container">
+  <div class="auth-card">
+    <div class="auth-header">
+      <div class="logo-badge">
+        <span class="logo-icon">🚀</span>
+      </div>
+      <h2>Create Account</h2>
+      <p class="auth-subtitle">Join EquipSphere to book and manage shared equipment</p>
+    </div>
+
+    <div *ngIf="errorMessage" class="alert alert-danger">
+      <span class="alert-icon">⚠️</span>
+      <span>{{ errorMessage }}</span>
+    </div>
+
+    <form (ngSubmit)="onSubmit()" #registerForm="ngForm" class="auth-form">
+      <div class="form-group">
+        <label for="name">Full Name *</label>
+        <div class="input-wrapper">
+          <span class="input-icon">👤</span>
+          <input
+            type="text"
+            id="name"
+            name="name"
+            [(ngModel)]="formData.name"
+            required
+            placeholder="e.g. Kasun Perera"
+            class="form-control"
+            [disabled]="loading"
+          />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="email">Institutional Email *</label>
+        <div class="input-wrapper">
+          <span class="input-icon">✉️</span>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            [(ngModel)]="formData.email"
+            required
+            placeholder="name@university.edu"
+            class="form-control"
+            [disabled]="loading"
+          />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password (min. 6 characters) *</label>
+        <div class="input-wrapper">
+          <span class="input-icon">🔒</span>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            [(ngModel)]="formData.password"
+            required
+            minlength="6"
+            placeholder="••••••••"
+            class="form-control"
+            [disabled]="loading"
+          />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group flex-1">
+          <label for="phone">Phone Number</label>
+          <input
+            type="tel"
+            id="phone"
+            name="phone"
+            [(ngModel)]="formData.phone"
+            placeholder="+94 77 123 4567"
+            class="form-control no-icon"
+            [disabled]="loading"
+          />
+        </div>
+
+        <div class="form-group flex-1">
+          <label for="department">Department</label>
+          <select
+            id="department"
+            name="department"
+            [(ngModel)]="formData.department"
+            class="form-control no-icon"
+            [disabled]="loading"
+          >
+            <option *ngFor="let dept of departments" [value]="dept">{{ dept }}</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Account Role</label>
+        <div class="role-selector">
+          <label class="role-option" [class.selected]="formData.role === 'USER'">
+            <input type="radio" name="role" value="USER" [(ngModel)]="formData.role" />
+            <span class="role-title">Student / Faculty (User)</span>
+            <span class="role-desc">Reserve equipment & report maintenance</span>
+          </label>
+          <label class="role-option" [class.selected]="formData.role === 'ADMIN'">
+            <input type="radio" name="role" value="ADMIN" [(ngModel)]="formData.role" />
+            <span class="role-title">Administrator</span>
+            <span class="role-desc">Manage catalog, approve bookings & users</span>
+          </label>
+        </div>
+      </div>
+
+      <button type="submit" class="btn-submit" [disabled]="loading">
+        <span *ngIf="loading" class="spinner"></span>
+        <span>{{ loading ? 'Creating Account...' : 'Register Account' }}</span>
+      </button>
+
+      <div class="auth-footer">
+        <span>Already have an account?</span>
+        <a routerLink="/login" class="link-login">Sign In</a>
+      </div>
+    </form>
+  </div>
+</div>

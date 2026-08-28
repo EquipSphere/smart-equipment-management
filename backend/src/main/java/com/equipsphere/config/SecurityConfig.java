@@ -57,9 +57,9 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:4200", "http://localhost:3000"));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "X-Requested-With", "Accept", "Origin", "Access-Control-Request-Method", "Access-Control-Request-Headers"));
+        configuration.setAllowedOriginPatterns(List.of("http://localhost:4200", "http://localhost:3000", "http://127.0.0.1:*"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD"));
+        configuration.setAllowedHeaders(List.of("*"));
         configuration.setExposedHeaders(List.of("Authorization"));
         configuration.setAllowCredentials(true);
         configuration.setMaxAge(3600L);
@@ -77,17 +77,20 @@ public class SecurityConfig {
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        // Public Auth APIs
+                        // 1. MUST allow all pre-flight CORS OPTIONS requests
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        // 2. Public Auth APIs
                         .requestMatchers("/api/auth/**").permitAll()
-                        // Public read-only equipment catalog & dashboard stats
+                        // 3. Public read-only equipment catalog & dashboard stats
                         .requestMatchers(HttpMethod.GET, "/api/equipment/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/dashboard/**").permitAll()
-                        // Admin restricted endpoints
+                        // 4. Admin restricted endpoints
                         .requestMatchers(HttpMethod.POST, "/api/equipment/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/equipment/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PATCH, "/api/equipment/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/equipment/**").hasRole("ADMIN")
                         .requestMatchers("/api/users/**").hasRole("ADMIN")
-                        // Any other request must be authenticated
+                        // 5. Any other request must be authenticated
                         .anyRequest().authenticated()
                 );
 

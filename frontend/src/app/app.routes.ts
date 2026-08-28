@@ -5,6 +5,7 @@ import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { EquipmentComponent } from './components/equipment/equipment.component';
 import { UsersComponent } from './components/users/users.component';
 import { BookingComponent } from './components/booking/booking.component';
+import { MaintenanceComponent } from './components/maintenance/maintenance.component';
 import { authGuard, adminGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
@@ -14,6 +15,7 @@ export const routes: Routes = [
   { path: 'dashboard', component: DashboardComponent, canActivate: [authGuard] },
   { path: 'equipment', component: EquipmentComponent, canActivate: [authGuard] },
   { path: 'bookings', component: BookingComponent, canActivate: [authGuard] },
+  { path: 'maintenance', component: MaintenanceComponent, canActivate: [authGuard] },
   { path: 'users', component: UsersComponent, canActivate: [adminGuard] },
   { path: '**', redirectTo: 'dashboard' }
 ];

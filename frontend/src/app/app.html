@@ -22,6 +22,9 @@
         <a routerLink="/bookings" routerLinkActive="active" class="nav-item">
           <span>📅</span> Bookings
         </a>
+        <a routerLink="/maintenance" routerLinkActive="active" class="nav-item">
+          <span>🛠️</span> Maintenance
+        </a>
         <a routerLink="/users" routerLinkActive="active" class="nav-item" *ngIf="authService.isAdmin()">
           <span>👥</span> Users
         </a>

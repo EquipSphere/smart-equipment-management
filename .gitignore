@@ -1,4 +1,4 @@
-﻿# ==========================================
+# ==========================================
 # 1. Node & Angular (Frontend)
 # ==========================================
 **/node_modules/
@@ -27,7 +27,7 @@ yarn-error.log*
 **/*.rar
 **/build/
 **/out/
-**/.mvn/wrapper/maven-wrapper.jar
+!**/.mvn/wrapper/maven-wrapper.jar
 **/.gradle/
 **/gradle-app.setting
 

@@ -51,8 +51,8 @@ IF ERRORLEVEL 1 (
     goto error
 )
 
-@REM Provide a fallback to standard spring-boot execution
-java -jar "%MAVEN_PROJECTBASEDIR%\target\smart-equipment-backend-0.0.1-SNAPSHOT.jar" %*
+%MAVEN_JAVA_EXE% %JVM_CONFIG_MAVEN_PROPS% %MAVEN_OPTS% -classpath %WRAPPER_JAR% "-Dmaven.multiModuleProjectDirectory=%MAVEN_PROJECTBASEDIR%" %WRAPPER_LAUNCHER% %*
+if ERRORLEVEL 1 goto error
 goto end
 
 :error
